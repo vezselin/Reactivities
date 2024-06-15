@@ -12,7 +12,6 @@ public class Create
     {
         public Activity Activity { get; set; }
     }
-
     public class CommandValidator : AbstractValidator<Command>
     {
         public CommandValidator()
@@ -20,7 +19,6 @@ public class Create
             RuleFor(x => x.Activity).SetValidator(new ActivityValidator());
         }
     }
-    //
     public class Handler : IRequestHandler<Command>
     {
         private readonly DataContext _context;
