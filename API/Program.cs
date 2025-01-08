@@ -2,7 +2,9 @@ using API.Extensions;
 using API.Middleware;
 using Application.Activities;
 using Application.Core;
-using Microsoft.EntityFrameworkCore;
+using Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore; 
 using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddApplicationServices(builder.Configuration);var app = builder.Build();
+builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddIdentityServicees(builder.Configuration);
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseMiddleware<ExceptionMiddleware>();
@@ -34,8 +38,9 @@ var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<DataContext>();
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
     await context.Database.MigrateAsync();
-    await Seed.SeedData(context); 
+    await Seed.SeedData(context, userManager); 
 }
 catch (Exception e)
 {
