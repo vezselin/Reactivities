@@ -1,3 +1,4 @@
+using API.Services;
 using API.UserDTO;
 using Domain;
 using Microsoft.AspNetCore.Identity;
@@ -11,10 +12,12 @@ namespace API.Controllers;
 public class AccountController : ControllerBase
 {
     private readonly UserManager<AppUser> _userManager;
+    private readonly TokenService _tokenService;
 
-    public AccountController(UserManager<AppUser> userManager)
+    public AccountController(UserManager<AppUser> userManager, TokenService tokenService)
     {
         _userManager = userManager;
+        _tokenService = tokenService;
     }
 
     [HttpPost("login")]
@@ -33,7 +36,7 @@ public class AccountController : ControllerBase
                 DisplayName = user.DisplayName,
                 Image = null,
                 Username = user.UserName,
-                Token = "This is a real token"
+                Token = _tokenService.CreateToken(user)
             };
         } 
 
