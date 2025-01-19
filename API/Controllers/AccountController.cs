@@ -1,11 +1,13 @@
 using API.Services;
 using API.UserDTO;
 using Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+[AllowAnonymous]
 [ApiController]
 [Route("api/[controller]")]
 
