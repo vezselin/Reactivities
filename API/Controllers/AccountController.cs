@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using API.Services;
 using API.UserDTO;
 using Domain;
@@ -8,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
-[AllowAnonymous]
 [ApiController]
 [Route("api/[controller]")]
 
@@ -22,7 +22,8 @@ public class AccountController : ControllerBase
         _userManager = userManager;
         _tokenService = tokenService;
     }
-
+    
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
     {
@@ -34,18 +35,13 @@ public class AccountController : ControllerBase
 
         if (result)
         {
-            return new UserDto
-            {
-                DisplayName = user.DisplayName,
-                Image = null,
-                Username = user.UserName,
-                Token = _tokenService.CreateToken(user)
-            };
+            return CreateUserObject(user);
         } 
 
         return Unauthorized();
     }
-
+    
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
     {
@@ -79,5 +75,23 @@ public class AccountController : ControllerBase
         }
 
         return BadRequest(result.Errors);
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<ActionResult<UserDto>> GetCurrentUser()
+    {
+        var user = await _userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+        return CreateUserObject(user);
+    }
+    private UserDto CreateUserObject(AppUser user)
+    {
+        return new UserDto
+        {
+            DisplayName = user.DisplayName,
+            Image = null,
+            Username = user.UserName,
+            Token = _tokenService.CreateToken(user)
+        };
     }
 }
